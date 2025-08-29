@@ -11,6 +11,16 @@ def session():
 
     return api
 
+def get_orders(api):
+    for i in range(3):
+        orders = api.get_order_book()
+        if orders:
+            if orders.get("stat") == "Ok":
+                return orders
+            else:
+                print(f"Error in getting orders: {orders}")
+        return []
+
 def get_open_orders(orders):
     open_orders = []
     for ord in orders:
@@ -24,6 +34,16 @@ def get_pnl(positions):
         pnl = float(pos["rpnl"]) + float(pos["urmtom"])
     return pnl
 
+def get_positions(api):
+    for i in range(3):
+        positions = api.get_positions()
+        if positions:
+            if positions.get("stat") == "Ok":
+                return positions
+            else:
+                print(f"Error in getting orders: {positions}")
+        return []
+    
 def get_open_positions(positions):
     open_positions = []
     for pos in positions:
@@ -52,3 +72,5 @@ def flatten(open_positions, open_orders, api):
     close_positions(open_positions, api)
     cancel_orders(open_orders, api)
 
+def killswitch():
+    pass
