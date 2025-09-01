@@ -50,4 +50,8 @@ def killswitch_bot():
 
     print("❌ Killswitch failed after 3 attempts. Manual intervention required.")
 
-killswitch_bot()
+if __name__ == "__main__":
+    try:
+        killswitch_bot()
+    except KeyboardInterrupt:
+        print("\nBot manually stopped!")
