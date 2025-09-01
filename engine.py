@@ -11,8 +11,9 @@ polling_interval = 1
 def killswitch_bot():
     attempts = 0
     pnl = 0
+    print("Starting the Bot!")
+    
     while attempts < 3:
-        print("Starting the Bot!")
         positions = get_positions(api)
         pnl = get_pnl(positions)
         print("PNL: ", pnl)
@@ -40,8 +41,12 @@ def killswitch_bot():
 
             if closed_flag and canceled_flag:
                 print("✅ All positions closed and orders cancelled.")
-                killswitch()
-                return
+                if killswitch():
+                    print("Activated Successfully!")
+                    return
+                else:
+                    print("Couldn't Activate Killswitch")
+                    return
             else:
                 print(f"❌ Attempt {attempts} failed. Retrying...")
                 attempts += 1

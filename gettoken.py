@@ -39,7 +39,8 @@ def requests_code_value():
     parsed_url = urlparse(code_url)
     url_params = parse_qs(parsed_url.query)
     code = url_params.get("code")[0]
-
+    
+    driver.quit()
     return code
 
 def get_token():

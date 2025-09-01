@@ -79,64 +79,84 @@ def flatten(open_positions, open_orders, api):
     close_positions(open_positions, api)
     cancel_orders(open_orders, api)
 
+class MyCustomError(Exception):
+    pass
+
 def killswitch():
+    print("Initiating Activation!")
     with open("/Users/wariskhan/Python Algo/flattrade_api/killswitch_tool/cred.json") as f:
         cred = json.load(f)
         user, pas, totp_token = cred["user_id"], cred["pass"], cred["totp_token"]
 
-    driver = webdriver.Chrome()
-    driver.minimize_window()
-
-    driver.get("https://auth.flattrade.in/?app=wall")
-
-    username = driver.find_element(By.ID, "input-19")
-    username.send_keys(user)
-
-    password = driver.find_element(By.ID, "pwd")
-    password.send_keys(pas)
-
-    totp_code = pyotp.TOTP(totp_token).now()
-    totp = driver.find_element(By.ID, "pan")
-    totp.send_keys(totp_code)
-
-    login_btn = driver.find_element(By.ID, "sbmt")
-    login_btn.click()
-
-    my_account = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[3]//span[1]")))
-    my_account.click()
-
-    try:
-        WebDriverWait(driver, 5).until(EC.visibility_of_element_located(".v-overlay__scrim"))
-    except:
-        # Overlay might appear too fast or not at all, ignore
-        pass
-    WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, ".v-overlay__scrim")))
-
-    killswitch_tab = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//b[normalize-space(text())='Kill Switch']")))
-    while True:
+    for i in range(3):
         try:
-            killswitch_tab.click()
-            break
+            driver = webdriver.Chrome()
+            driver.minimize_window()
+
+            driver.get("https://auth.flattrade.in/?app=wall")
+
+            username = driver.find_element(By.ID, "input-19")
+            username.send_keys(user)
+
+            password = driver.find_element(By.ID, "pwd")
+            password.send_keys(pas)
+
+            totp_code = pyotp.TOTP(totp_token).now()
+            totp = driver.find_element(By.ID, "pan")
+            totp.send_keys(totp_code)
+
+            login_btn = driver.find_element(By.ID, "sbmt")
+            login_btn.click()
+
+            my_account = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//a[3]//span[1]")))
+            my_account.click()
+
+            try:
+                WebDriverWait(driver, 5).until(EC.visibility_of_element_located(".v-overlay__scrim"))
+            except:
+                pass
+            WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, ".v-overlay__scrim")))
+
+            killswitch_tab = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//b[normalize-space(text())='Kill Switch']")))
+            while True:
+                try:
+                    killswitch_tab.click()
+                    break
+                except:
+                    time.sleep(0.2)
+
+            checkboxes = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "v-input--selection-controls__ripple")))
+
+            checkboxes[1].click()
+            checkboxes[6].click()
+
+            deactivate = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[class='v-btn v-btn--has-bg theme--light elevation-0 v-size--small primary'] span[class='v-btn__content']")))
+            deactivate.click()
+
+            driver.maximize_window()
+
+            confirm_deactivate = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[class='float-right v-btn v-btn--has-bg theme--light elevation-0 v-size--small primary'] span[class='v-btn__content']")))
+            confirm_deactivate.click()
+
+            try:
+                while True:
+                    time.sleep(1)
+                    driver.title
+            except:
+                print("Browser is closed")
+                activated = ("y" == input("Is it Activated?(y,n)"))
+                if activated:
+                    return True
+                else:
+                    raise MyCustomError
+                
+        except MyCustomError:
+            print("User Denied That killswitch is activated")
+            continue
+
         except:
-            time.sleep(0.2)
+            print("Error in Activating Killswitch!")
+            driver.close()
+            continue
 
-    checkboxes = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "v-input--selection-controls__ripple")))
-
-    checkboxes[1].click()
-    checkboxes[6].click()
-
-    deactivate = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[class='v-btn v-btn--has-bg theme--light elevation-0 v-size--small primary'] span[class='v-btn__content']")))
-    deactivate.click()
-
-    confirm_deactivate = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[class='float-right v-btn v-btn--has-bg theme--light elevation-0 v-size--small primary'] span[class='v-btn__content']")))
-    confirm_deactivate.click()
-
-    driver.maximize_window()
-
-    try:
-        while True:
-            time.sleep(1)
-            driver.title
-    except:
-        print("Killswitch might have beed activated!")
-        print("Browser is closed")
+    return False
