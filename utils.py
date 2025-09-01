@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from gettoken import get_token
 import time
 import pyotp
 import json
@@ -13,7 +14,7 @@ def session():
     with open("cred.json") as f:
         cred = json.load(f)
 
-    api.set_session(userid=cred["user_id"], password=cred["pass"], usertoken=cred["token"])
+    api.set_session(userid=cred["user_id"], password=cred["pass"], usertoken=get_token())
 
     return api
 

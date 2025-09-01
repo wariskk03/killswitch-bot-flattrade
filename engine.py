@@ -12,6 +12,7 @@ def killswitch_bot():
     attempts = 0
     pnl = 0
     while attempts < 3:
+        print("Starting the Bot!")
         positions = get_positions(api)
         pnl = get_pnl(positions)
         print("PNL: ", pnl)
