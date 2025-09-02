@@ -22,41 +22,44 @@ def get_orders(api):
     for i in range(3):
         orders = api.get_order_book()
         if orders:
-            if orders.get("stat") == "Ok":
+            if type(orders) == list:
                 return orders
             else:
                 print(f"Error in getting orders: {orders}")
         return []
 
-def get_open_orders(orders):
-    open_orders = []
-    for ord in orders:
-        if ord["status"] == "OPEN":
-            open_orders.append(ord)
-    return open_orders
-
-def get_pnl(positions):
-    pnl = 0
-    for pos in positions:
-        pnl = float(pos["rpnl"]) + float(pos["urmtom"])
-    return pnl
-
 def get_positions(api):
     for i in range(3):
         positions = api.get_positions()
         if positions:
-            if positions.get("stat") == "Ok":
+            if type(positions) == list:
                 return positions
             else:
-                print(f"Error in getting orders: {positions}")
+                print(f"Error in getting positions: {positions}")
         return []
     
+def get_open_orders(orders):
+    open_orders = []
+    for ord in orders:
+        if ord["stat"] == "Ok":
+            if ord["status"] == "OPEN":
+                open_orders.append(ord)
+    return open_orders
+
 def get_open_positions(positions):
     open_positions = []
     for pos in positions:
-        if pos["netqty"] != "0":
-            open_positions.append(pos)
+        if pos["stat"] == "Ok":
+            if pos["netqty"] != "0":
+                open_positions.append(pos)
     return open_positions
+
+def get_pnl(positions):
+    pnl = 0
+    for pos in positions:
+        if pos["stat"] == "Ok":
+            pnl += (float(pos["rpnl"]) + float(pos["urmtom"]))
+    return pnl
 
 def close_positions(open_positions, api):
     for pos in open_positions:

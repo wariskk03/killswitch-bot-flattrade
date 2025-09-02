@@ -16,7 +16,7 @@ def killswitch_bot():
     while attempts < 3:
         positions = get_positions(api)
         pnl = get_pnl(positions)
-        print("PNL: ", pnl)
+        print("PNL: ", round(pnl, 2))
 
         if pnl <= -daily_risk:
             print("Activating Killswitch")
