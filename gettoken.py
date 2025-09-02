@@ -34,7 +34,7 @@ def requests_code_value():
     login_btn = driver.find_element(By.ID, "sbmt")
     login_btn.click()
 
-    WebDriverWait(driver, 10).until(EC.title_contains("localhost"))    
+    WebDriverWait(driver, 10).until(EC.url_contains("localhost"))    
     code_url = driver.current_url
     parsed_url = urlparse(code_url)
     url_params = parse_qs(parsed_url.query)

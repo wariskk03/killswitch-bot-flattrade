@@ -27,7 +27,7 @@ def killswitch_bot():
             orders = get_orders(api)
             open_orders = get_open_orders(orders)
 
-            flatten(open_positions, open_orders, api)
+            flatten(open_orders, open_positions, api)
 
             print("Final Checking")
             positions = get_positions(api)

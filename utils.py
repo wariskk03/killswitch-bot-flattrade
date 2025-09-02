@@ -64,7 +64,7 @@ def get_pnl(positions):
 def close_positions(open_positions, api):
     for pos in open_positions:
         api.place_order(
-            buy_or_sell="B" if pos["netqty"] < 0 else "S",
+            buy_or_sell="B" if int(pos["netqty"]) < 0 else "S",
             product_type=pos["prd"],
             exchange=pos["exch"],
             tradingsymbol=pos["tsym"],
@@ -78,9 +78,9 @@ def cancel_orders(open_orders, api):
     for ord in open_orders:
         api.cancel_order(ord["norenordno"]) 
 
-def flatten(open_positions, open_orders, api):
-    close_positions(open_positions, api)
+def flatten(open_orders, open_positions, api):
     cancel_orders(open_orders, api)
+    close_positions(open_positions, api)
 
 class MyCustomError(Exception):
     pass
@@ -115,13 +115,13 @@ def killswitch():
             my_account.click()
 
             try:
-                WebDriverWait(driver, 5).until(EC.visibility_of_element_located(".v-overlay__scrim"))
+                WebDriverWait(driver, 5).until(EC.visibility_of_element_located(By.CSS_SELECTOR, ".v-overlay__scrim"))
             except:
                 pass
             WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, ".v-overlay__scrim")))
 
             killswitch_tab = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//b[normalize-space(text())='Kill Switch']")))
-            while True:
+            for i in range(5):
                 try:
                     killswitch_tab.click()
                     break
@@ -159,7 +159,8 @@ def killswitch():
 
         except:
             print("Error in Activating Killswitch!")
-            driver.close()
+            if driver:
+                driver.close()
             continue
 
     return False
