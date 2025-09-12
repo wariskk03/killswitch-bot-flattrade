@@ -13,6 +13,14 @@ with open("cred.json") as f:
     user, pas, totp_token = cred["user_id"], cred["pass"], cred["totp_token"]
     api_key, api_secret = cred["api_key"], cred["api_secret"]
 
+def add_cred(key, value):
+    with open("cred.json", "r+") as f:
+        cred = json.load(f)
+        cred[key] = value
+        f.seek(0)
+        json.dump(cred, f, indent=4)
+        f.truncate()
+
 def requests_code_value():
     print("Requesting requests-code!")
     url = f"https://auth.flattrade.in/?app_key={api_key}"
@@ -60,7 +68,8 @@ def get_token():
             response = response.json()
             if response.get("stat") == "Ok":
                 print("Session-token fetched successfully!")
-                return response.get("token")
+                token = response.get("token")
+                add_cred("token", token)
             else:
                 print("Couldn't generate session-token, wrong response!")
                 print(response)
@@ -70,3 +79,5 @@ def get_token():
     except requests.exceptions.RequestException as e:
         return {"error": "RequestException", "details": str(e)}
     
+if __name__ == "__main__":
+    get_token()

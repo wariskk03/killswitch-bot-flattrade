@@ -6,7 +6,7 @@ api = session()
 with open("cred.json") as f:
     daily_risk = json.load(f)["daily_risk"]
 
-polling_interval = 1
+polling_interval = 0.5
 
 def killswitch_bot():
     attempts = 0
@@ -16,7 +16,7 @@ def killswitch_bot():
     while attempts < 3:
         positions = get_positions(api)
         pnl = get_pnl(positions)
-        print("PNL: ", round(pnl, 2))
+        print(f"\rPnL: {pnl:.2f}", end="")
 
         if pnl <= -daily_risk:
             print("Activating Killswitch")

@@ -14,7 +14,7 @@ def session():
     with open("cred.json") as f:
         cred = json.load(f)
 
-    api.set_session(userid=cred["user_id"], password=cred["pass"], usertoken=get_token())
+    api.set_session(userid=cred["user_id"], password=cred["pass"], usertoken=cred["token"])
 
     return api
 
