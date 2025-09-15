@@ -7,11 +7,11 @@ logging.basicConfig(level=logging.INFO)
 
 api = session()
 
+direction = input("Direction - (l:long/s:short): ").strip().lower()
 THRESHOLDS = {
     "26000": float(input("Tgt - NIFTY: ")),
     "26009": float(input("Tgt - BANKNIFTY: "))   
 }
-direction = input("Direction - (l:long/s:short): ").strip().lower()
 
 def on_open():
     print("✅ WebSocket connected!")
@@ -19,11 +19,14 @@ def on_open():
 
 latest_prices = {}
 def on_quote(message):
+    if "lp" not in message:
+        return
     token = message["tk"]
     lp = float(message["lp"])
     latest_prices[token] = lp
 
     if all(tk in latest_prices for tk in THRESHOLDS):
+        print(f"\rNifty: {latest_prices['26000']}/{THRESHOLDS['26000']}\t\tBank: {latest_prices['26009']}/{THRESHOLDS["26009"]}", end="")
         if direction == "l":  # long → target is above threshold
             nifty_ok = latest_prices["26000"] > THRESHOLDS["26000"]
             bank_ok  = latest_prices["26009"] > THRESHOLDS["26009"]
@@ -32,7 +35,7 @@ def on_quote(message):
             bank_ok  = latest_prices["26009"] < THRESHOLDS["26009"]
 
         if nifty_ok or bank_ok:
-            print("⚠️ Either Nifty OR Bank Nifty hit target → Exit triggered ✅")
+            print("\n⚠️ Either Nifty OR Bank Nifty hit target → Exit triggered ✅")
             pos = get_positions(api)
             ord = get_orders(api)
             open_ord = get_open_orders(ord)

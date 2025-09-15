@@ -16,7 +16,11 @@ def session():
 
     api.set_session(userid=cred["user_id"], password=cred["pass"], usertoken=cred["token"])
 
-    return api
+    response = api.get_limits()
+    if response["stat"] == "Ok":
+        return api
+    else:
+        raise MyCustomError(response)
 
 def get_orders(api):
     for i in range(3):
